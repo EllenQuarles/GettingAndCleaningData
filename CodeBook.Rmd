@@ -1,0 +1,62 @@
+---
+title: "Code Book"
+author: "*Ellen Quarles*"
+date: "April 19, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This is the codebook for the final project in the Coursera course "Getting and Cleaning Data" using data from  
+
+###### Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz.  
+###### Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine.  
+###### International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012  
+
+### Process to Tidy the Raw Data
+1. Original data from the following files were loaded into R using data.table().  
+     X_test.txt, y_test.txt, subject_test.txt  
+     X_train.txt, y_train.txt, subject_train.txt  
+2. y_test was added as a column to the x_test table under the heading "ActivityCode" and subject_test was added as a column as well under the name "SubjectCode". The same process was applied to the training set (_train) of tables. These were then row-bound to create one master table of data.  
+3. Features were added as column names for all columns in the master data table that were not ActivityCode or SubjectCode.  
+     a) features.txt was read into R, formatted as character, and each feature was made unique using make.unique().   
+     b) This adjusted vector of features was added as the column names to the master data table.  
+4. Using the stringr package, all column names including the text "mean()" and "std()" were selected from the master data table.  
+5. The features and activity codes were altered to have more descriptive names.  
+     a) ActivityCode was changed to activity, with numbers replaced by "walking", "standing", etc.  
+     b) Original feature names were separated into new columns of their component information:  
+          i) time vs frequency type data  
+          ii) body vs gravity measurements  
+          iii) accelerometer vs gyroscope tool measurements  
+          iv) axis: X,Y,Z or all three combined ""  
+          v) jerk vs "" vs magnitude vs jerk-magnitude  
+          vi) mean vs standard deviation  
+6. Using this descriptively labeled, only mean() and sd(), combined test and training, dataset:  
+     a) grouped all variables qualitative variables  
+     b) found the mean of measurements for each of those groups  
+     c) and finally ended with a column for mean(mean) and mean(StandardDeviation) of each group.  
+
+
+### Variable Names and Descriptions
+
+The tidy data is arranged as a table with the following variable (column) names/descriptions:
+
+**SubjectCode** - integer 1:30 - code number unique to each of the 30 human subjects  
+
+*all following variables are characters*  
+**Activity** - standing/laying/walking etc - 6 different activities each subject performed  
+**SignalDomain** - "time" or "frequency" - denoting the type of data in the original dataset, either a measurement taken over time or a Fourier transformation of that data into a frequency  
+**AccelerationComponent** - "body" or "gravity" - type of measurement  
+**Sensor** - notation about which sensor was used to collect data: the gyrometer or accelerometer  
+**DerivedValue** - if available, which derivation of the data this represents - the jerk, magnitude, magnitude of jerk, or "" for non-derived value  
+**Axis** - X or Y or Z or "" to represent all combined 
+
+*both meanOf... variables are numeric*  
+**meanOfMean** - the mean of all of the mean() values for this group  
+**meanOfStandardDeviation** - the mean of all of the sd() values for this group  
+
+Each row is an observation of a subject at a unique combination of all other qualitative variables.
